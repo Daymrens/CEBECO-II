@@ -38,7 +38,7 @@ export default function AdminLoginPage() {
     <div className="flex min-h-svh items-center justify-center bg-zinc-50 px-4 dark:bg-black">
       <div className="w-full max-w-sm">
         <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-925">
-          <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
             CEBECO II Admin
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
@@ -49,7 +49,7 @@ export default function AdminLoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Email
               </label>
@@ -67,7 +67,7 @@ export default function AdminLoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
                 Password
               </label>
