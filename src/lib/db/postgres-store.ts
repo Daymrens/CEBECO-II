@@ -2,17 +2,21 @@ import { Pool } from "pg"
 
 import type {
   AdminStats,
+  AlertLog,
   AuditLog,
   Outage,
+  Subscriber,
   User,
 } from "@shared/types"
 
 import type {
+  AlertLogInput,
   AuditLogInput,
   DBAdapter,
   OutageFilters,
   OutageInput,
   OutageUpdate,
+  SubscriberInput,
   UserInput,
 } from "./types"
 
@@ -207,6 +211,108 @@ export class PostgresStore implements DBAdapter {
   }
 
   /* ---------------- subscribers / alerts ---------------- */
+
+  private toSubscriber(row: Record<string, unknown>): Subscriber {
+    return {
+      id: String(row.id),
+      email: String(row.email),
+      barangay: String(row.barangay),
+      sitio: row.sitio == null ? null : String(row.sitio),
+      verified: Boolean(row.verified),
+      verify_token: row.verify_token == null ? null : String(row.verify_token),
+      active: row.active == null ? true : Boolean(row.active),
+      created_at:
+        row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at),
+    }
+  }
+
+  private toAlertLog(row: Record<string, unknown>): AlertLog {
+    return {
+      id: String(row.id),
+      outage_id: String(row.outage_id),
+      subscriber_id: String(row.subscriber_id),
+      sent_at: row.sent_at instanceof Date ? row.sent_at.toISOString() : String(row.sent_at),
+      status: row.status as AlertLog["status"],
+      recipient: row.recipient == null ? null : String(row.recipient),
+      nota: row.nota == null ? null : String(row.nota),
+    }
+  }
+
+  async createSubscriber(input: SubscriberInput): Promise<Subscriber> {
+    const { rows } = await this.pool.query(
+      `insert into public.subscribers (email, barangay, sitio, verify_token)
+       values ($1, $2, $3, $4)
+       returning *`,
+      [input.email, input.barangay, input.sitio ?? null, input.verify_token ?? null]
+    )
+    return this.toSubscriber(rows[0])
+  }
+
+  async getSubscriberByEmailBarangay(
+    email: string,
+    barangay: string
+  ): Promise<Subscriber | null> {
+    const { rows } = await this.pool.query(
+      `select * from public.subscribers where lower(email) = lower($1) and barangay = $2 limit 1`,
+      [email, barangay]
+    )
+    return rows[0] ? this.toSubscriber(rows[0]) : null
+  }
+
+  async verifySubscriber(token: string): Promise<Subscriber | null> {
+    const { rows } = await this.pool.query(
+      `update public.subscribers
+       set verified = true
+       where verify_token = $1
+       returning *`,
+      [token]
+    )
+    return rows[0] ? this.toSubscriber(rows[0]) : null
+  }
+
+  async deactivateSubscriber(token: string): Promise<Subscriber | null> {
+    const { rows } = await this.pool.query(
+      `update public.subscribers
+       set active = false
+       where verify_token = $1
+       returning *`,
+      [token]
+    )
+    return rows[0] ? this.toSubscriber(rows[0]) : null
+  }
+
+  async findSubscribersByBarangay(barangays: string[]): Promise<Subscriber[]> {
+    const { rows } = await this.pool.query(
+      `select * from public.subscribers
+       where verified = true and active = true and barangay = any($1::text[])`,
+      [barangays]
+    )
+    return rows.map((r) => this.toSubscriber(r))
+  }
+
+  async listSubscribers(limit = 100): Promise<Subscriber[]> {
+    const { rows } = await this.pool.query(
+      `select * from public.subscribers order by created_at desc limit $1`,
+      [limit]
+    )
+    return rows.map((r) => this.toSubscriber(r))
+  }
+
+  async recordAlert(input: AlertLogInput): Promise<AlertLog> {
+    const { rows } = await this.pool.query(
+      `insert into public.alert_logs (outage_id, subscriber_id, status, recipient, nota)
+       values ($1, $2, $3, $4, $5)
+       returning *`,
+      [
+        input.outage_id,
+        input.subscriber_id,
+        input.status,
+        input.recipient ?? null,
+        input.nota ?? null,
+      ]
+    )
+    return this.toAlertLog(rows[0])
+  }
 
   async countSubscribers(): Promise<number> {
     const { rows } = await this.pool.query(
