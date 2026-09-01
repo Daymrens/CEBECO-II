@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import dynamic from "next/dynamic"
 import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -10,6 +11,11 @@ import { StatusBadge, TypeBadge } from "@/components/public/badges"
 import { SiteFooter } from "@/components/public/site-footer"
 import { SiteHeader } from "@/components/public/site-header"
 import { TransparencyBanner } from "@/components/public/transparency-banner"
+
+const OutageMap = dynamic(
+  () => import("@/components/public/outage-map").then((mod) => mod.OutageMap),
+  { ssr: false },
+)
 
 function formatDate(date: string): string {
   const d = new Date(`${date}T00:00:00`)
@@ -155,16 +161,12 @@ export default function OutageDetailPage() {
               </p>
             )}
 
-            {/* Map placeholder — filled in Phase 5 */}
-            <div
-              aria-hidden="true"
-              className="mt-8 rounded-2xl border-2 border-dashed border-zinc-300 bg-zinc-100 p-10 text-center dark:border-zinc-700 dark:bg-zinc-925"
-            >
-              <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
-                Map of affected areas
-              </p>
-              <p className="mt-1 text-xs text-zinc-400">Interactive map coming in a future phase.</p>
-            </div>
+            {outage.barangays.length > 0 && (
+              <OutageMap
+                barangays={outage.barangays}
+                municipality={outage.municipality}
+              />
+            )}
           </article>
         )}
       </main>
