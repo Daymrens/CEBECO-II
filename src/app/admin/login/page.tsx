@@ -35,13 +35,13 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="flex min-h-svh items-center justify-center bg-zinc-50 px-4 dark:bg-black">
+    <div className="flex min-h-svh items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-925">
-          <h1 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+        <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+          <h1 className="text-xl font-semibold tracking-tight text-gray-900">
             CEBECO II Admin
           </h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1 text-sm text-gray-500">
             Sign in to manage outages.
           </p>
 
@@ -49,7 +49,7 @@ export default function AdminLoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="mb-1 block text-sm font-medium text-gray-700"
               >
                 Email
               </label>
@@ -60,14 +60,14 @@ export default function AdminLoginPage() {
                 autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
               />
             </div>
 
             <div>
               <label
                 htmlFor="password"
-                className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                className="mb-1 block text-sm font-medium text-gray-700"
               >
                 Password
               </label>
@@ -78,12 +78,12 @@ export default function AdminLoginPage() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
               />
             </div>
 
             {error && (
-              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
                 {error}
               </p>
             )}
@@ -97,7 +97,7 @@ export default function AdminLoginPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-xs text-zinc-400 dark:text-zinc-500">
+          <p className="mt-6 text-xs text-gray-400">
             Seeded default: admin@cebeco.example / admin1234 (see README).
           </p>
         </div>
