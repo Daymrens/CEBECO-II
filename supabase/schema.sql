@@ -30,19 +30,41 @@ create table if not exists public.barangays (
 -- Subscribers (email alert recipients)
 -- ---------------------------------------------------------------------
 create table if not exists public.subscribers (
-  id         uuid primary key default gen_random_uuid(),
-  email      text not null,
-  barangay   text not null,
-  sitio      text,
-  verified   boolean not null default false,
-  created_at timestamptz not null default now()
+  id           uuid primary key default gen_random_uuid(),
+  email        text not null,
+  barangay     text not null,
+  sitio        text,
+  verified     boolean not null default false,
+  created_at   timestamptz not null default now()
 );
+
+-- Phase 4 additions — verification + opt-out bookkeeping. These use
+-- ADD COLUMN IF NOT EXISTS so they are idempotent against existing tables.
+alter table public.subscribers
+  add column if not exists verify_token text,
+  add column if not exists active boolean not null default true;
 
 create index if not exists idx_subscribers_email
   on public.subscribers (email);
 
 create index if not exists idx_subscribers_barangay
   on public.subscribers (barangay);
+
+-- Idempotent unique constraint on (email, barangay): a single subscriber row
+-- covers one barangay. PostgreSQL treats a unique index as a constraint, and
+-- the DO block makes it safe to re-run (it's a no-op if the index exists).
+do $$
+begin
+  if not exists (
+    select 1 from pg_indexes
+    where schemaname = 'public'
+      and tablename = 'subscribers'
+      and indexname = 'uniq_subscribers_email_barangay'
+  ) then
+    create unique index uniq_subscribers_email_barangay
+      on public.subscribers (lower(email), barangay);
+  end if;
+end $$;
 
 -- ---------------------------------------------------------------------
 -- Outages
@@ -112,6 +134,12 @@ create table if not exists public.alert_logs (
   sent_at       timestamptz not null default now(),
   status        text not null check (status in ('sent', 'failed'))
 );
+
+-- Phase 4 additions: who was addressed and why a send failed (e.g. no
+-- RESEND_API_KEY). Kept idempotent for existing tables.
+alter table public.alert_logs
+  add column if not exists recipient text,
+  add column if not exists nota text;
 
 create index if not exists idx_alert_logs_outage
   on public.alert_logs (outage_id);
