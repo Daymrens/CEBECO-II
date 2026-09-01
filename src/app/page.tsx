@@ -20,7 +20,7 @@ const RANGES: { value: Range; label: string }[] = [
 ]
 
 const selectClass =
-  "rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+  "rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
 
 export default function Home() {
   const [municipality, setMunicipality] = useState("Sogod")
@@ -85,22 +85,22 @@ export default function Home() {
   }, [outages, search])
 
   return (
-    <div className="flex min-h-svh flex-col bg-zinc-50 dark:bg-black">
+    <div className="flex min-h-svh flex-col bg-gray-50">
       <SiteHeader />
       <TransparencyBanner />
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">
           Outage Schedule
         </h1>
-        <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">
+        <p className="mt-1 text-sm text-gray-600">
           Browse scheduled and ongoing power outages across the CEBECO II area.
         </p>
 
         {/* Controls */}
         <div className="mt-6 flex flex-col gap-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <label className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
               Municipality
               <select
                 value={municipality}
@@ -118,7 +118,7 @@ export default function Home() {
             <div
               role="tablist"
               aria-label="Time range"
-              className="inline-flex rounded-lg border border-zinc-200 bg-white p-1 dark:border-zinc-800 dark:bg-zinc-925"
+              className="inline-flex rounded-lg border border-gray-200 bg-white p-1"
             >
               {RANGES.map((r) => (
                 <button
@@ -128,8 +128,8 @@ export default function Home() {
                   onClick={() => handleRangeChange(r.value)}
                   className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
                     range === r.value
-                      ? "bg-sky-600 text-white"
-                      : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100"
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-600 hover:text-gray-900 bg-white border border-gray-200"
                   }`}
                 >
                   {r.label}
@@ -148,13 +148,13 @@ export default function Home() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={`Search barangay or sitio in ${municipality}…`}
-              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-gray-400"
             />
           </div>
 
           {municipality === "Sogod" && (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+              <span className="text-xs font-medium uppercase tracking-wider text-gray-500">
                 Barangay:
               </span>
               {["", ...SOGOD_BARANGAYS].map((b) => {
@@ -166,8 +166,8 @@ export default function Home() {
                     aria-pressed={active}
                     className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${
                       active
-                        ? "bg-sky-600 text-white"
-                        : "bg-white text-zinc-600 ring-1 ring-zinc-200 hover:bg-zinc-100 dark:bg-zinc-925 dark:text-zinc-300 dark:ring-zinc-800 dark:hover:bg-zinc-800"
+                        ? "bg-blue-600 text-white"
+                        : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
                     }`}
                   >
                     {b || "All"}
@@ -180,14 +180,14 @@ export default function Home() {
 
         {/* Status */}
         {error && (
-          <p className="mt-6 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300">
+          <p className="mt-6 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
             {error}
           </p>
         )}
-        {loading && <p className="mt-6 text-sm text-zinc-500">Loading…</p>}
+        {loading && <p className="mt-6 text-sm text-gray-500">Loading…</p>}
 
         {!loading && !error && filtered && filtered.length === 0 && (
-          <p className="mt-6 rounded-xl border border-dashed border-zinc-300 px-4 py-10 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+          <p className="mt-6 rounded-xl border border-dashed border-gray-300 px-4 py-10 text-center text-sm text-gray-500">
             No outages match the current filters.
             {(search || barangay) && (
               <span>
@@ -208,11 +208,11 @@ export default function Home() {
         )}
 
         {/* Subscribe */}
-        <section className="mt-12 rounded-2xl border border-sky-200 bg-sky-50/50 p-6 dark:border-sky-900 dark:bg-sky-950/30">
-          <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+        <section className="mt-12 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-bold text-gray-900">
             Get notified of outages in your area
           </h2>
-          <p className="mt-1 mb-5 text-sm text-zinc-700 dark:text-zinc-300">
+          <p className="mt-1 mb-5 text-sm text-gray-600">
             Enter your email and we&apos;ll alert you when an outage affects your barangay.
           </p>
           <SubscribeForm barangay={barangay || undefined} />

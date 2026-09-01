@@ -97,10 +97,10 @@ export function OutageMap({ barangays }: OutageMapProps) {
     <div className="mt-8">
       <div
         ref={mapRef}
-        className="h-72 w-full rounded-2xl border border-zinc-200 dark:border-zinc-800"
+        className="h-72 w-full rounded-xl border border-gray-200"
         style={{ zIndex: 0 }}
       />
-      <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500">
+      <p className="mt-2 text-xs text-gray-400">
         Approximate area only — not to exact scale.
         {unknown.length > 0 && (
           <>
