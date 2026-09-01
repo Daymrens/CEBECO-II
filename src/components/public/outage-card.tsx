@@ -28,7 +28,7 @@ export function OutageCard({ outage }: { outage: Outage }) {
   return (
     <Link
       href={`/outage/${outage.id}`}
-      className={`group block rounded-2xl border border-zinc-200 border-l-4 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-zinc-800 dark:border-l-zinc-600 dark:bg-zinc-925 ${border}`}
+      className={`group block rounded-2xl border border-zinc-200 border-l-[5px] bg-white p-5 shadow-md transition hover:shadow-md dark:border-zinc-800 dark:border-l-zinc-600 dark:bg-zinc-925 ${border}`}
     >
       <div className="flex flex-wrap items-center gap-2">
         <TypeBadge type={outage.type} />
@@ -40,31 +40,31 @@ export function OutageCard({ outage }: { outage: Outage }) {
         )}
       </div>
 
-      <h3 className="mt-3 text-base font-bold text-zinc-900 dark:text-zinc-50">
+      <h3 className="mt-3 text-base font-bold text-black dark:text-white">
         {outage.title}
       </h3>
 
-      <dl className="mt-3 space-y-1 text-sm text-zinc-700 dark:text-zinc-300">
+      <dl className="mt-3 space-y-1 text-sm text-zinc-800 dark:text-zinc-200">
         <div className="flex gap-2">
-          <dt className="w-14 shrink-0 font-medium text-zinc-500 dark:text-zinc-400">Date</dt>
+          <dt className="w-14 shrink-0 font-medium text-zinc-600 dark:text-zinc-300">Date</dt>
           <dd>{formatDate(outage.date)}</dd>
         </div>
         <div className="flex gap-2">
-          <dt className="w-14 shrink-0 font-medium text-zinc-500 dark:text-zinc-400">Time</dt>
+          <dt className="w-14 shrink-0 font-medium text-zinc-600 dark:text-zinc-300">Time</dt>
           <dd>
             {outage.start_time}
             {outage.end_time ? ` – ${outage.end_time}` : " (end TBD)"}
           </dd>
         </div>
         <div className="flex gap-2">
-          <dt className="w-14 shrink-0 font-medium text-zinc-500 dark:text-zinc-400">Areas</dt>
+          <dt className="w-14 shrink-0 font-medium text-zinc-600 dark:text-zinc-300">Areas</dt>
           <dd>{outage.barangays.join(", ")}</dd>
         </div>
       </dl>
 
       {outage.reason && (
-        <p className="mt-3 text-sm text-zinc-700 dark:text-zinc-300">
-          <span className="font-medium text-zinc-500 dark:text-zinc-400">Reason: </span>
+        <p className="mt-3 text-sm text-zinc-800 dark:text-zinc-200">
+          <span className="font-medium text-zinc-600 dark:text-zinc-300">Reason: </span>
           {outage.reason}
         </p>
       )}
