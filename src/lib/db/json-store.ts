@@ -4,17 +4,21 @@ import { dirname, resolve } from "node:path"
 
 import type {
   AdminStats,
+  AlertLog,
   AuditLog,
   Outage,
+  Subscriber,
   User,
 } from "@shared/types"
 
 import type {
+  AlertLogInput,
   AuditLogInput,
   DBAdapter,
   OutageFilters,
   OutageInput,
   OutageUpdate,
+  SubscriberInput,
   UserInput,
 } from "./types"
 
@@ -31,14 +35,8 @@ import type {
 interface DbFile {
   users: User[]
   outages: Outage[]
-  subscribers: { id: string; email: string; barangay: string; created_at: string }[]
-  alert_logs: {
-    id: string
-    outage_id: string
-    subscriber_id: string
-    sent_at: string
-    status: "sent" | "failed"
-  }[]
+  subscribers: Subscriber[]
+  alert_logs: AlertLog[]
   audit_logs: AuditLog[]
 }
 
@@ -218,6 +216,116 @@ export class JsonFileStore implements DBAdapter {
   }
 
   /* ---------------- subscribers / alerts ---------------- */
+
+  private normalizeSubscriber(row: Subscriber): Subscriber {
+    // Backfill for rows persisted before Phase 4 added these fields.
+    return {
+      ...row,
+      sitio: row.sitio ?? null,
+      verified: row.verified ?? false,
+      verify_token: row.verify_token ?? null,
+      active: row.active ?? true,
+    }
+  }
+
+  private normalizeAlert(row: AlertLog): AlertLog {
+    return {
+      ...row,
+      recipient: row.recipient ?? null,
+      nota: row.nota ?? null,
+    }
+  }
+
+  async createSubscriber(input: SubscriberInput): Promise<Subscriber> {
+    const subscriber: Subscriber = {
+      id: randomUUID(),
+      email: input.email,
+      barangay: input.barangay,
+      sitio: input.sitio ?? null,
+      verified: false,
+      verify_token: input.verify_token ?? null,
+      active: true,
+      created_at: nowIso(),
+    }
+    await this.write((db) => {
+      db.subscribers.push(subscriber)
+      return db
+    })
+    return subscriber
+  }
+
+  async getSubscriberByEmailBarangay(
+    email: string,
+    barangay: string
+  ): Promise<Subscriber | null> {
+    const db = this.read()
+    const row = db.subscribers.find(
+      (s) =>
+        s.email.toLowerCase() === email.toLowerCase() && s.barangay === barangay
+    )
+    return row ? this.normalizeSubscriber(row) : null
+  }
+
+  async verifySubscriber(token: string): Promise<Subscriber | null> {
+    let found: Subscriber | null = null
+    await this.write((db) => {
+      const row = db.subscribers.find((s) => s.verify_token === token)
+      if (!row) return db
+      row.verified = true
+      // Keep the token so it can also be reused for unsubscription (sandbox
+      // single-link flow: verify AND unsubscribe use the same token).
+      found = this.normalizeSubscriber(row)
+      return db
+    })
+    return found
+  }
+
+  async deactivateSubscriber(token: string): Promise<Subscriber | null> {
+    let found: Subscriber | null = null
+    await this.write((db) => {
+      const row = db.subscribers.find((s) => s.verify_token === token)
+      if (!row) return db
+      row.active = false
+      found = this.normalizeSubscriber(row)
+      return db
+    })
+    return found
+  }
+
+  async findSubscribersByBarangay(barangays: string[]): Promise<Subscriber[]> {
+    const db = this.read()
+    return db.subscribers
+      .filter(
+        (s) => s.verified && s.active && barangays.includes(s.barangay)
+      )
+      .map((s) => this.normalizeSubscriber(s))
+  }
+
+  async listSubscribers(limit = 100): Promise<Subscriber[]> {
+    const db = this.read()
+    return db.subscribers
+      .slice()
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+      .slice(0, limit)
+      .map((s) => this.normalizeSubscriber(s))
+  }
+
+  async recordAlert(input: AlertLogInput): Promise<AlertLog> {
+    const entry: AlertLog = {
+      id: randomUUID(),
+      outage_id: input.outage_id,
+      subscriber_id: input.subscriber_id,
+      sent_at: nowIso(),
+      status: input.status,
+      recipient: input.recipient ?? null,
+      nota: input.nota ?? null,
+    }
+    await this.write((db) => {
+      db.alert_logs.push(entry)
+      return db
+    })
+    return entry
+  }
 
   async countSubscribers(): Promise<number> {
     return this.read().subscribers.length
