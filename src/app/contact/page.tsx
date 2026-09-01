@@ -55,7 +55,7 @@ export default function ContactPage() {
               </dt>
               <dd>
                 <a
-                  href="https://www.facebook.com/cebeco2"
+                  href="https://www.facebook.com/cebeco2.official"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sky-600 underline hover:text-sky-500 dark:text-sky-400"

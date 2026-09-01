@@ -82,7 +82,7 @@ async function main() {
       end_time: null,
       reason: "Downed line near the municipal plaza; crew on site.",
       source: "facebook",
-      source_url: "https://www.facebook.com/cebeco2",
+      source_url: "https://www.facebook.com/cebeco2.official",
     },
     {
       title: `${SAMPLE_PREFIX} Scheduled maintenance in Bagakay`,
