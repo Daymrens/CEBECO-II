@@ -3,7 +3,7 @@
 CEBECO II Outage Portal MVP — 5 phases (Scaffold+DB, Admin, Public Pages, Email Alerts, Map).
 Contract: armada/REQUIREMENTS.md (Status: APPROVED).
 
-- [ ] CEBECO II Outage Portal — MVP (scaffold, admin, public pages, email alerts, map)
+- [x] CEBECO II Outage Portal — MVP (scaffold, admin, public pages, email alerts, map) (master @ Daymrens/CEBECO-II) (2026-09-02)
 
 ## Phase 2 — Admin Auth + Dashboard (DONE)
 
@@ -18,7 +18,9 @@ Contract: armada/REQUIREMENTS.md (Status: APPROVED).
 
 ## NEXT
 
-- [ ] Phase 3 — Public pages (outage list/calendar, subscribe form)
-- [ ] Phase 4 — Email alerts (Resend) + alert_logs wiring
-- [ ] Phase 5 — Map (map_geojson + Leaflet/MapLibre)
+- [x] Phase 3 — Public pages (outage list/calendar, subscribe form)
+- [x] Phase 4 — Email alerts (Resend) + alert_logs wiring
+- [x] Phase 5 — Map (map_geojson + Leaflet/MapLibre)
 - [ ] Move to Postgres store in a real environment and re-run smoke tests there
+- [ ] Set real RESEND_API_KEY + verified EMAIL_FROM domain for live email delivery
+- [ ] Verify full Sogod barangay coordinate table for the map (most are placeholders)
