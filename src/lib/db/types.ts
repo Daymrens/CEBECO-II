@@ -1,11 +1,14 @@
 import type {
   AdminStats,
+  AlertLog,
+  AlertStatus,
   AuditAction,
   AuditLog,
   AuditTargetType,
   Outage,
   OutageStatus,
   OutageType,
+  Subscriber,
   User,
 } from "@shared/types"
 
@@ -61,6 +64,21 @@ export interface AuditLogInput {
   details?: unknown | null
 }
 
+export interface SubscriberInput {
+  email: string
+  barangay: string
+  sitio?: string | null
+  verify_token?: string | null
+}
+
+export interface AlertLogInput {
+  outage_id: string
+  subscriber_id: string
+  status: AlertStatus
+  recipient?: string | null
+  nota?: string | null
+}
+
 export interface DBAdapter {
   readonly name: string
 
@@ -80,6 +98,13 @@ export interface DBAdapter {
   getOutageStats(): Promise<AdminStats>
 
   /* Subscribers / alerts */
+  createSubscriber(input: SubscriberInput): Promise<Subscriber>
+  getSubscriberByEmailBarangay(email: string, barangay: string): Promise<Subscriber | null>
+  verifySubscriber(token: string): Promise<Subscriber | null>
+  deactivateSubscriber(token: string): Promise<Subscriber | null>
+  findSubscribersByBarangay(barangays: string[]): Promise<Subscriber[]>
+  listSubscribers(limit?: number): Promise<Subscriber[]>
+  recordAlert(input: AlertLogInput): Promise<AlertLog>
   countSubscribers(): Promise<number>
   countAlertLogs(): Promise<number>
 

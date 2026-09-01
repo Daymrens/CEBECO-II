@@ -58,3 +58,26 @@ export interface AdminStats {
   subscriber_count: number
   alerts_sent: number
 }
+
+export interface Subscriber {
+  id: string
+  email: string
+  barangay: string
+  sitio: string | null
+  verified: boolean
+  verify_token: string | null
+  active: boolean
+  created_at: string
+}
+
+export type AlertStatus = "sent" | "failed"
+
+export interface AlertLog {
+  id: string
+  outage_id: string
+  subscriber_id: string
+  sent_at: string
+  status: AlertStatus
+  recipient: string | null
+  nota: string | null
+}
