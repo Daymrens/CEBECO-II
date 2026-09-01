@@ -90,10 +90,10 @@ export default function Home() {
       <TransparencyBanner />
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
           Outage Schedule
         </h1>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">
           Browse scheduled and ongoing power outages across the CEBECO II area.
         </p>
 
@@ -154,7 +154,7 @@ export default function Home() {
 
           {municipality === "Sogod" && (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium uppercase tracking-wider text-zinc-400">
+              <span className="text-xs font-medium uppercase tracking-wider text-zinc-500">
                 Barangay:
               </span>
               {["", ...SOGOD_BARANGAYS].map((b) => {
@@ -184,7 +184,7 @@ export default function Home() {
             {error}
           </p>
         )}
-        {loading && <p className="mt-6 text-sm text-zinc-400">Loading…</p>}
+        {loading && <p className="mt-6 text-sm text-zinc-500">Loading…</p>}
 
         {!loading && !error && filtered && filtered.length === 0 && (
           <p className="mt-6 rounded-xl border border-dashed border-zinc-300 px-4 py-10 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
@@ -208,11 +208,11 @@ export default function Home() {
         )}
 
         {/* Subscribe */}
-        <section className="mt-12 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-925">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+        <section className="mt-12 rounded-2xl border border-sky-200 bg-sky-50/50 p-6 dark:border-sky-900 dark:bg-sky-950/30">
+          <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
             Get notified of outages in your area
           </h2>
-          <p className="mt-1 mb-5 text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="mt-1 mb-5 text-sm text-zinc-700 dark:text-zinc-300">
             Enter your email and we&apos;ll alert you when an outage affects your barangay.
           </p>
           <SubscribeForm barangay={barangay || undefined} />

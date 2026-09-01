@@ -4,8 +4,8 @@ export function SiteHeader() {
   return (
     <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-925">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-sky-600 text-xs font-bold text-white">
+        <Link href="/" className="flex items-center gap-2.5 text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-sky-600 text-xs font-bold text-white shadow-sm shadow-sky-600/30">
             COP
           </span>
           <span>CEBECO II Outage Portal</span>
@@ -31,6 +31,7 @@ export function SiteHeader() {
           </Link>
         </nav>
       </div>
+      <div className="h-0.5 bg-gradient-to-r from-sky-500 via-sky-400 to-indigo-500" />
     </header>
   )
 }
