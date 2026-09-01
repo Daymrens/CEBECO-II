@@ -61,7 +61,8 @@ scripts/             seed-admin.ts (creates the default admin account)
    | `DATA_FILE`                    | JSON-store file path override (default `data/db.json`)                 |
    | `NEXT_PUBLIC_SUPABASE_URL`     | Supabase project URL (not needed for the JSON-file store)              |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY`| Supabase anon (public) API key                                         |
-   | `RESEND_API_KEY`               | Resend key for email alerts (Phase 4)                                  |
+   | `RESEND_API_KEY`               | Resend key for email alerts (Phase 4). Unset → email disabled          |
+   | `EMAIL_FROM`                   | "From" address for alert emails (defaults to a sandbox placeholder)    |
 
    Generate a strong `AUTH_SECRET`:
 
@@ -136,13 +137,45 @@ to move between them.
 | GET    | `/api/admin/audit-logs`    | admin   | Recent audit entries                     |
 | GET    | `/api/outages`             | public  | List (filters: municipality, barangay, range=day\|week\|all) |
 | GET    | `/api/outages/:id`         | public  | Single outage                            |
-| POST   | `/api/outages`             | admin   | Create outage (writes audit log)         |
-| PATCH  | `/api/outages/:id`         | admin   | Update outage; `status=cancelled` runs cancel audit log |
+| POST   | `/api/outages`             | admin   | Create outage (writes audit log + alerts subscribers) |
+| PATCH  | `/api/outages/:id`         | admin   | Update outage; `status=cancelled`/`restored` alerts subscribers |
 | DELETE | `/api/outages/:id`         | admin   | Delete outage (writes audit log)         |
+| POST   | `/api/subscribe`           | public  | Create a pending email-alert subscriber (validates Sogod barangay, rejects duplicates) |
+| POST   | `/api/subscribe/verify`    | public  | Mark a subscriber verified via token (JSON `{ token }` or `GET ?token=`) |
+| GET    | `/api/subscribe/verify`    | public  | Same as POST, token via query string     |
+| POST   | `/api/unsubscribe`         | public  | Set subscriber `active=false` via token (`{ token }` or `GET ?token=`) |
+| GET    | `/api/unsubscribe`         | public  | Same as POST, token via query string     |
 
 Every admin mutation writes a row to `audit_logs` (`supabase/schema.sql`):
 actor_user_id, action (`create|update|cancel|delete`), target_type, target_id,
 details (before/after), created_at.
+
+## Email alerts (Phase 4)
+
+Flow: **subscribe → verify → (unsubscribe)**.
+
+1. `POST /api/subscribe` with `{ email, barangay, sitio? }`. The barangay must
+   be a valid Sogod barangay; a duplicate `(email, barangay)` is rejected with
+   `400`. A pending subscriber (`verified=false`) row is created along with a
+   `verify_token`, and the API returns the verification URL/token.
+2. `POST /api/subscribe/verify` (or `GET …?token=`) with that token marks the
+   subscriber `verified=true`. Only verified + active subscribers receive
+   alerts.
+3. On outage **create**, or a **PATCH** that sets status to `cancelled`/`restored`,
+   the API finds verified+active subscribers whose barangay is in the outage's
+   `barangays`, emails each one via [Resend](https://resend.com), and writes a
+   row to `alert_logs` (`status` = `sent`|`failed`, plus `recipient`/`nota`).
+4. `POST /api/unsubscribe` (or `GET …?token=`) flips `active=false`.
+
+**Sandbox behavior:** with `RESEND_API_KEY` unset (the default here), email is
+**disabled**. Subscription, verification, and unsubscribe still work; outage
+mutations still succeed (`201`/`200`) and `alert_logs` rows are written with
+`status='failed'` and a note that the key is missing. Set `RESEND_API_KEY`
+(and optionally `EMAIL_FROM`) to enable real delivery. A mail failure never
+breaks an outage mutation — it is caught and logged per recipient.
+
+The email logic lives in `src/lib/email/` (`sendEmail`, `sendOutageAlerts`);
+the per-recipient tracking uses `alert_logs` in both DB adapters.
 
 ## Scripts
 
@@ -156,8 +189,12 @@ details (before/after), created_at.
 
 ## Status
 
-Phase 1 (scaffold + database schema) and Phase 2 (admin auth + dashboard) are
-complete. See `TODO.md` and `armada/REQUIREMENTS.md` for the roadmap.
+Phase 1 (scaffold + database schema), Phase 2 (admin auth + dashboard), and
+Phase 3 (public schedule + map) are complete. Phase 4 (email alerts) is
+implemented: subscribe/verify/unsubscribe APIs, Resend email sender, and
+per-recipient `alert_logs` tracking, with graceful sandbox degradation when
+`RESEND_API_KEY` is unset. See `TODO.md` and `armada/REQUIREMENTS.md` for the
+roadmap.
 
 ## Disclaimer
 
