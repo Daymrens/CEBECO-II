@@ -19,17 +19,27 @@ export function SubscribeForm({ barangay }: { barangay?: string }) {
     setState("pending")
     setMessage(null)
     try {
-      // Phase 4 (email alerts) will replace this endpoint. Today it is a stub
-      // that replies "coming soon" so the subscribe flow is wired end-to-end
-      // without sending real email.
       const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, barangay: selected, sitio: sitio || null }),
       })
       const data = await res.json().catch(() => null)
-      setMessage(data?.message ?? "Something went wrong.")
-      setState(data?.ok ? "done" : "error")
+
+      // Success surfaced with the verification token so the flow is usable in
+      // the sandbox (no outbound mail here). In production this link is emailed.
+      if (res.ok && data?.ok) {
+        const link = data.verifyUrl
+          ? `\n\nConfirm your subscription here: ${window.location.origin}${data.verifyUrl}`
+          : ""
+        setMessage(data.message + link)
+        setState("done")
+        setEmail("")
+        setSitio("")
+      } else {
+        setMessage(data?.error ?? data?.message ?? "Something went wrong.")
+        setState("error")
+      }
     } catch {
       setState("error")
       setMessage("Network error. Please try again.")
@@ -97,7 +107,7 @@ export function SubscribeForm({ barangay }: { barangay?: string }) {
       {message && (
         <p
           role="status"
-          className={`rounded-lg px-3 py-2 text-sm ${
+          className={`whitespace-pre-line rounded-lg px-3 py-2 text-sm ${
             state === "done"
               ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
               : "bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-200"
