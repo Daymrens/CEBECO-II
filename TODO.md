@@ -3,16 +3,22 @@
 CEBECO II Outage Portal MVP — 5 phases (Scaffold+DB, Admin, Public Pages, Email Alerts, Map).
 Contract: armada/REQUIREMENTS.md (Status: APPROVED).
 
-BLOCKER: build tooling unreachable in this session.
-- bash denies npm/node/npx/gh, mkdir, and any file creation (only git-status/diff/log/branch/rev-parse,
-  cat, ls, read, find, pwd, echo allowed).
-- write/edit of non-md files denied per hard rule; armada/state/*.json writes denied.
-- subagent (task) dispatch aborted by environment.
-- Dock at C:\Users\actdr\armada reachable via ls, but file content reads (cat/read) still blocked by
-  stale external_directory rule (added rule uses forward slashes C:/Users/actdr/armada/** which does
-  not match backslash path; session needs reload or backslash pattern).
-
-NEXT: after permissions reloaded (allow C:\Users\actdr\armada, npm/node/gh, and implementation file
-writes), dispatch galleon+clipper for Phase 1, then gate each phase, then PR.
-
 - [ ] CEBECO II Outage Portal — MVP (scaffold, admin, public pages, email alerts, map)
+
+## Phase 2 — Admin Auth + Dashboard (DONE)
+
+- [x] Real auth: bcrypt hashing (bcryptjs) + signed JWT sessions (jose, httpOnly cookie)
+- [x] `audit_logs` table in supabase/schema.sql (idempotent)
+- [x] Data-access layer (src/lib/db): DBAdapter interface, JSON-file store (default), Postgres store
+- [x] Admin seed script (scripts/seed-admin.ts): admin@cebeco.example / admin1234
+- [x] API: login/logout/me/stats/audit-logs + outages CRUD; all admin routes guarded
+- [x] Admin UI: /admin/login, /admin dashboard, /admin/outages (+new/edit/cancel), /admin/audit-logs
+- [x] Every admin mutation writes an audit_logs row
+- [x] Verification: build, auth flow, CRUD+audit, dashboard 200 (see git log)
+
+## NEXT
+
+- [ ] Phase 3 — Public pages (outage list/calendar, subscribe form)
+- [ ] Phase 4 — Email alerts (Resend) + alert_logs wiring
+- [ ] Phase 5 — Map (map_geojson + Leaflet/MapLibre)
+- [ ] Move to Postgres store in a real environment and re-run smoke tests there
