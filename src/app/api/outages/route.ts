@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createAuditLog } from "@/lib/auth/audit"
 import { requireAdmin } from "@/lib/auth/require-admin"
 import { getDb } from "@/lib/db"
+import { sendOutageAlerts } from "@/lib/email/alerts"
 import { parseOutageBody, toDbInput } from "@/lib/outages/validation"
 import type { Outage } from "@shared/types"
 
@@ -54,5 +55,14 @@ export async function POST(req: NextRequest) {
     },
   })
 
-  return NextResponse.json({ outage }, { status: 201 })
+  // Phase 4: notify matching subscribers. Wrapped so a mail failure never
+  // fails the outage creation itself.
+  let alerts
+  try {
+    alerts = await sendOutageAlerts(outage)
+  } catch {
+    alerts = null
+  }
+
+  return NextResponse.json({ outage, alerts }, { status: 201 })
 }

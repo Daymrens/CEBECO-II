@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createAuditLog } from "@/lib/auth/audit"
 import { requireAdmin } from "@/lib/auth/require-admin"
 import { getDb } from "@/lib/db"
+import { sendOutageAlerts } from "@/lib/email/alerts"
 import { parseOutageBody } from "@/lib/outages/validation"
 
 interface Params {
@@ -79,7 +80,18 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     details: { before, changes: raw },
   })
 
-  return NextResponse.json({ outage })
+  // Phase 4: notify when an outage moves to cancelled or restored. Wrapped so
+  // a mail failure never fails the mutation.
+  let alerts = null
+  if (outage.status === "cancelled" || outage.status === "restored") {
+    try {
+      alerts = await sendOutageAlerts(outage)
+    } catch {
+      alerts = null
+    }
+  }
+
+  return NextResponse.json({ outage, alerts })
 }
 
 export async function DELETE(req: NextRequest, { params }: Params) {
